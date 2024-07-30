@@ -1,0 +1,16 @@
+cronjobs:
+  - name: "test-cron1"
+    schedule: "*/10 * * * *"
+    image:
+      path: "busybox"
+
+    command: ['echo', 'This is the a test cronjob.']
+    maintainers: ['test-user1', 'test-user2']
+  
+  - name: "test-cron2"
+    schedule: "*/5 * * * *"
+    image:
+      path: "nginx"
+
+    command: ['ls', '/']
+    maintainers: ['test-user3']

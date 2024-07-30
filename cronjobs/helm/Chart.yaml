@@ -1,0 +1,5 @@
+apiVersion: v2
+name: managed-cronjob
+description: A Helm chart for managed-cronjob Kubernetes CronJobs
+version: 0.1.0
+appVersion: "1.0"

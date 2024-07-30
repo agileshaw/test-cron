@@ -1,0 +1,62 @@
+{{- range .Values.cronjobs }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .name }}
+  labels:
+    app.kubernetes.io/name: {{ .name | quote }}
+    {{- with (.metadata).labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    maintainers: |-
+      {{- toYaml .maintainers | nindent 8 }} 
+    {{- with .podAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  schedule: {{ .schedule | quote }}
+  concurrencyPolicy: {{ (.policies).concurrencyPolicy | default "Forbid" }}
+  failedJobsHistoryLimit: {{ (.policies).failedJobsHistoryLimit | default 5 }}
+  successfulJobsHistoryLimit: {{ (.policies).successfulJobsHistoryLimit | default 3 }}
+  activeDeadlineSeconds: {{ (.policies).activeDeadlineSeconds | default 600 }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            maintainers: |-
+              {{- toYaml .maintainers | nindent 16 }} 
+            {{- with .podAnnotations }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          labels:
+            app: {{ .name }}
+            {{- if .selectorLabels }}
+            {{ toYaml .selectorLabels | nindent 12 }}
+            {{- end }}
+        spec:
+          containers:
+          - name: {{ .name }}
+            image: "{{ .image.path }}:{{ .image.tag | default "latest" }}"
+            imagePullPolicy: {{ .image.pullPolicy | default "IfNotPresent" }}
+            command: {{ .command | toJson }}
+{{- if .resources }}
+            resources:
+{{ toYaml .resources | indent 16 }}
+{{- end }}
+{{- if .env }}
+            env:
+{{ toYaml .env | indent 12 }}
+{{- end }}
+{{- if .volumeMounts }}
+            volumeMounts:
+{{ toYaml .volumeMounts | indent 12 }}
+{{- end }}
+{{- if .volumes }}
+          volumes:
+{{ toYaml .volumes | indent 12 }}
+{{- end }}
+          restartPolicy: {{ .restartPolicy | default "OnFailure" }}
+---
+{{- end }}

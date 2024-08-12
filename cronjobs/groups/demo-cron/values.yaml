@@ -1,16 +1,26 @@
+nameOverride: demo-cron
 cronjobs:
-  - name: "demo-cron1"
+  - name: "demo-cron"
     schedule: "*/10 * * * *"
     image:
       path: "busybox"
 
-    command: ['echo', 'This is the a test cronjob.']
+    command: ['sh', '/etc/external-files/hello.sh']
     maintainers: ['test-user1', 'test-user2']
-  
-  - name: "demo-cron2"
-    schedule: "*/5 * * * *"
-    image:
-      path: "nginx"
 
-    command: ['ls', '/']
-    maintainers: ['test-user3']
+
+    configmaps:
+      - name: demo-cron-configmap
+        contents:
+          hello.sh: | 
+            echo "Hello World"
+          sample.yaml: | 
+            path: "/etc/external-files/hello.sh"
+            pi: 3.14159
+    volumes:
+      - name: demo-cron-files
+        configMap:
+          name: demo-cron-configmap
+    volumeMounts:
+      - name: demo-cron-files
+        mountPath: /etc/external-files

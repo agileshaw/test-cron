@@ -10,23 +10,24 @@ metadata:
     {{- end }}
   annotations:
     maintainers: |-
-      {{- toYaml .maintainers | nindent 8 }} 
-    {{- with .podAnnotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+      {{- range .maintainers -}}
+      {{ . | nindent 8 }}
+      {{- end }}
 spec:
   schedule: {{ .schedule | quote }}
   concurrencyPolicy: {{ (.policies).concurrencyPolicy | default "Forbid" }}
   failedJobsHistoryLimit: {{ (.policies).failedJobsHistoryLimit | default 5 }}
   successfulJobsHistoryLimit: {{ (.policies).successfulJobsHistoryLimit | default 3 }}
-  activeDeadlineSeconds: {{ (.policies).activeDeadlineSeconds | default 600 }}
   jobTemplate:
     spec:
+      activeDeadlineSeconds: {{ (.policies).activeDeadlineSeconds | default 600 }}
       template:
         metadata:
           annotations:
             maintainers: |-
-              {{- toYaml .maintainers | nindent 16 }} 
+              {{- range .maintainers -}}
+              {{ . | nindent 14 }}
+              {{- end }}
             {{- with .podAnnotations }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -43,7 +44,7 @@ spec:
             command: {{ .command | toJson }}
 {{- if .resources }}
             resources:
-{{ toYaml .resources | indent 16 }}
+{{ toYaml .resources | indent 14 }}
 {{- end }}
 {{- if .env }}
             env:

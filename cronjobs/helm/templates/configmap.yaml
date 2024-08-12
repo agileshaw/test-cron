@@ -1,0 +1,14 @@
+{{- range .Values.cronjobs }}
+{{- range $configmap :=.configmaps }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $configmap.name }}
+data:
+  {{- range $name, $content :=  $configmap.contents }}
+  {{ $name }}: |- 
+{{ $content | indent 4 -}}
+  {{ end }}
+---
+{{- end }}
+{{- end }}
